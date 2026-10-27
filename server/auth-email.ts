@@ -16,7 +16,7 @@ export function createAuthEmailSender(localDevelopment = false): SendAuthEmail {
   const host = process.env.SMTP_HOST ?? (!production ? "127.0.0.1" : "");
   const from =
     process.env.AUTH_EMAIL_FROM ??
-    (!production ? "Jevbox <auth@localhost.test>" : "");
+    (!production ? "Onro Knowledgebase <auth@localhost.test>" : "");
   if (!host || !from)
     throw new Error(
       "SMTP_HOST and AUTH_EMAIL_FROM are required for authentication email",
@@ -59,16 +59,16 @@ export function createAuthEmailSender(localDevelopment = false): SendAuthEmail {
       ...(id ? { messageId: `<${id}@jevbox.auth>` } : {}),
       subject:
         kind === "invitation"
-          ? "You are invited to Jevbox"
+          ? "You are invited to Onro Knowledgebase"
           : kind === "verification"
             ? "Verify your email address"
             : "Reset your password",
       text:
         kind === "invitation"
-          ? `Join ${organizationName ?? "your organization"} on Jevbox:\n\n${url}\n\nSign in with this email address to accept. This invitation expires in seven days.`
+          ? `Join ${organizationName ?? "your organization"} on Onro Knowledgebase:\n\n${url}\n\nSign in with this email address to accept. This invitation expires in seven days.`
           : kind === "verification"
-            ? `Verify your email address to sign in to Jevbox:\n\n${url}\n\nThis link expires in one hour.`
-            : `Reset your Jevbox password:\n\n${url}\n\nThis link expires in one hour. If you did not request it, you can ignore this email.`,
+            ? `Verify your email address to sign in to Onro Knowledgebase:\n\n${url}\n\nThis link expires in one hour.`
+            : `Reset your Onro Knowledgebase password:\n\n${url}\n\nThis link expires in one hour. If you did not request it, you can ignore this email.`,
     });
   };
 }

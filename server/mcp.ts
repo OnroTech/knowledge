@@ -38,6 +38,7 @@ export function createMcpRouter(
             () => {
               const server = new McpServer({
                 name: "jevbox",
+                title: "Onro Knowledgebase",
                 version: "1.0.0",
               });
               const annotations = {

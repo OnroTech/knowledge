@@ -243,7 +243,8 @@ const fetcher: typeof fetch = async (input, init) => {
   assert.ok(
     body.input[0].content.includes("You propose a reusable folder branch"),
   );
-  assert.equal(body.max_output_tokens, 600);
+  assert.equal(body.max_output_tokens, 3000);
+  assert.equal(body.text.format.type, "json_schema");
   await duringGeneration?.();
   return textResponse(body, generation);
 };

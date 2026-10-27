@@ -109,7 +109,8 @@ label textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: var(--type-display);
+  font-size: clamp(18px, 4.5vw, 24px);
+  line-height: 1.2;
   font-weight: 600;
   letter-spacing: var(--tracking-heading);
 }
@@ -117,12 +118,14 @@ label textarea {
   font-size: var(--type-title);
 }
 .brand-mark {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   color: var(--muted-foreground);
 }
-.brand-dot {
-  color: var(--muted-foreground);
+.brand-name {
+  min-width: 0;
+  text-wrap: balance;
 }
 .live-dot {
   width: 5px;

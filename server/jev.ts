@@ -76,7 +76,9 @@ export function createJev(
   const model = cloudflare ? config.model : "jev-latest";
   const url = cloudflare
     ? `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(config.accountId)}/ai/run/@cf/cloudflare/${model}`
-    : "https://api.typesafe.ai/v1/systemone";
+    : config.provider === "typesafe" && config.gateway === "openrouter"
+      ? "https://openrouter.ai/api/v1/systemone"
+      : "https://api.typesafe.ai/v1/systemone";
   async function evaluate(
     state: unknown,
     questions: Record<string, unknown>,

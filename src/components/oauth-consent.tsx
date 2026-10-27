@@ -47,7 +47,7 @@ export function OAuthConsent({ me }: { me: Me }) {
       <section className="auth-main">
         <Brand />
         <div className="auth-form">
-          <h1>Connect to Jevbox</h1>
+          <h1>Connect to Onro Knowledgebase</h1>
           {!request && !action.error ? (
             <Loading />
           ) : (

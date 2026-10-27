@@ -570,7 +570,12 @@ export function createOrganization(
             },
           ],
           fetcher,
-          { signal, beforeStep: checkFolders, maxOutputTokens: 600 },
+          {
+            signal,
+            beforeStep: checkFolders,
+            maxOutputTokens: 3000,
+            outputSchema: branchSchema,
+          },
         );
       },
     });

@@ -54,8 +54,8 @@ export function LoaderPreview() {
       <header>
         <h1>Box loader</h1>
         <p>
-          Loops every {(duration / 1000).toFixed(1)}s and rests on the Jevbox
-          icon.
+          Loops every {(duration / 1000).toFixed(1)}s and rests on the Onro
+          Knowledgebase icon.
         </p>
       </header>
       <div className="loader-preview-stage" ref={root}>

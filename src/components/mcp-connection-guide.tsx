@@ -109,10 +109,10 @@ function makeGuides(url: string): Guide[] {
           ),
         },
         {
-          title: "Add Jevbox",
+          title: "Add Onro Knowledgebase",
           body: (
             <>
-              Enter <strong>Jevbox</strong> as the name. Under{" "}
+              Enter <strong>Onro Knowledgebase</strong> as the name. Under{" "}
               <strong>Connection</strong>, choose <strong>Server URL</strong>{" "}
               and paste the MCP URL above. Set <strong>Authentication</strong>{" "}
               to <strong>OAuth</strong>.
@@ -131,12 +131,12 @@ function makeGuides(url: string): Guide[] {
           ),
         },
         {
-          title: "Sign in and use Jevbox",
+          title: "Sign in and use Onro Knowledgebase",
           body: (
             <>
-              Connect the Jevbox plugin and follow the sign-in prompt to approve
-              search and document access. Enable it in a chat and ask Codex to
-              list your Jevbox organizations.
+              Connect the Onro Knowledgebase plugin and follow the sign-in
+              prompt to approve search and document access. Enable it in a chat
+              and ask Codex to list your Onro Knowledgebase organizations.
             </>
           ),
         },
@@ -169,19 +169,19 @@ function makeGuides(url: string): Guide[] {
           title: "Enter your server details",
           body: (
             <>
-              Name it <strong>Jevbox</strong> and enter your deployed Jevbox
-              HTTPS URL ending in <code>/mcp</code>. Claude desktop and web
-              connect from the cloud.
+              Name it <strong>Onro Knowledgebase</strong> and enter your
+              deployed Onro Knowledgebase HTTPS URL ending in <code>/mcp</code>.
+              Claude desktop and web connect from the cloud.
             </>
           ),
         },
         {
-          title: "Authorize Jevbox",
+          title: "Authorize Onro Knowledgebase",
           body: (
             <>
               Select <strong>Add</strong> to save the connector, then choose{" "}
-              <strong>Connect</strong> and sign in to Jevbox to approve read and
-              search access. Leave advanced OAuth fields empty.
+              <strong>Connect</strong> and sign in to Onro Knowledgebase to
+              approve read and search access. Leave advanced OAuth fields empty.
             </>
           ),
         },
@@ -189,8 +189,9 @@ function makeGuides(url: string): Guide[] {
           title: "Enable it in a conversation",
           body: (
             <>
-              Open <strong>+ → Connectors</strong> in a chat, enable Jevbox, and
-              ask Claude to list your Jevbox organizations.
+              Open <strong>+ → Connectors</strong> in a chat, enable Onro
+              Knowledgebase, and ask Claude to list your Onro Knowledgebase
+              organizations.
             </>
           ),
         },
@@ -198,7 +199,7 @@ function makeGuides(url: string): Guide[] {
       snippet: {
         label: "Use Claude Code locally",
         description:
-          "Run the command, start Claude Code, then use /mcp to select Jevbox and authenticate in your browser.",
+          "Run the command, start Claude Code, then use /mcp to select Onro Knowledgebase and authenticate in your browser.",
         text: `claude mcp add --transport http --scope user jevbox ${JSON.stringify(url)}`,
       },
     },
@@ -235,8 +236,8 @@ function makeGuides(url: string): Guide[] {
           body: (
             <>
               Save and restart Cursor. Return to{" "}
-              <strong>Customize → MCPs</strong>, enable Jevbox, and follow the
-              sign-in prompt.
+              <strong>Customize → MCPs</strong>, enable Onro Knowledgebase, and
+              follow the sign-in prompt.
             </>
           ),
         },
@@ -244,8 +245,8 @@ function makeGuides(url: string): Guide[] {
           title: "Use it in Agent",
           body: (
             <>
-              Open an Agent chat, enable Jevbox’s tools, and ask it to list your
-              Jevbox organizations.
+              Open an Agent chat, enable Onro Knowledgebase’s tools, and ask it
+              to list your Onro Knowledgebase organizations.
             </>
           ),
         },
@@ -253,7 +254,7 @@ function makeGuides(url: string): Guide[] {
       snippet: {
         label: "~/.cursor/mcp.json",
         description:
-          "This adds a URL-based server. Jevbox handles sign-in through OAuth.",
+          "This adds a URL-based server. Onro Knowledgebase handles sign-in through OAuth.",
         text: JSON.stringify({ mcpServers: { jevbox: { url } } }, null, 2),
       },
     },
@@ -291,7 +292,7 @@ function makeGuides(url: string): Guide[] {
             <>
               Review the configuration, then use{" "}
               <strong>MCP: List Servers → jevbox → Start</strong>. Confirm trust
-              if prompted and complete the Jevbox sign-in flow.
+              if prompted and complete the Onro Knowledgebase sign-in flow.
             </>
           ),
         },
@@ -300,7 +301,8 @@ function makeGuides(url: string): Guide[] {
           body: (
             <>
               In an Agent chat, open <strong>Configure Tools</strong>, enable
-              Jevbox’s tools, and ask it to list your Jevbox organizations.
+              Onro Knowledgebase’s tools, and ask it to list your Onro
+              Knowledgebase organizations.
             </>
           ),
         },
@@ -316,7 +318,7 @@ function makeGuides(url: string): Guide[] {
       id: "other",
       label: "Other clients",
       subtitle:
-        "Use a client that supports Streamable HTTP and Jevbox’s MCP version.",
+        "Use a client that supports Streamable HTTP and Onro Knowledgebase’s MCP version.",
       docs: "https://modelcontextprotocol.io/docs/learn/architecture",
       steps: [
         {
@@ -324,7 +326,7 @@ function makeGuides(url: string): Guide[] {
           body: (
             <>
               Find your client’s MCP or integrations settings and create a
-              connection named <strong>Jevbox</strong>.
+              connection named <strong>Onro Knowledgebase</strong>.
             </>
           ),
         },
@@ -333,8 +335,8 @@ function makeGuides(url: string): Guide[] {
           body: (
             <>
               Select <strong>Streamable HTTP</strong> and paste the MCP URL
-              above. Jevbox supports MCP <strong>2026-07-28</strong> and the
-              standard <strong>2025-11-25</strong> handshake.
+              above. Onro Knowledgebase supports MCP <strong>2026-07-28</strong>{" "}
+              and the standard <strong>2025-11-25</strong> handshake.
             </>
           ),
         },
@@ -342,8 +344,8 @@ function makeGuides(url: string): Guide[] {
           title: "Choose authentication",
           body: (
             <>
-              Use <strong>OAuth</strong> to sign in to Jevbox. If your client
-              only supports headers, create a personal key in{" "}
+              Use <strong>OAuth</strong> to sign in to Onro Knowledgebase. If
+              your client only supports headers, create a personal key in{" "}
               <RouteLink href={paths.settings("api-keys")}>API keys</RouteLink>{" "}
               and add the header below.
             </>
@@ -363,8 +365,8 @@ function makeGuides(url: string): Guide[] {
       snippet: {
         label: "API-key authentication header",
         description:
-          "Replace the placeholder with your personal Jevbox key in your client’s private settings.",
-        text: "Authorization: Bearer <YOUR_JEVBOX_API_KEY>",
+          "Replace the placeholder with your personal Onro Knowledgebase key in your client’s private settings.",
+        text: "Authorization: Bearer <YOUR_ONRO_KNOWLEDGEBASE_API_KEY>",
       },
     },
   ];
@@ -399,7 +401,7 @@ function SetupPreview({ url }: { url: string }) {
           </dl>
           <div className="mcp-preview-auth">
             <Check size={13} />
-            <span>Sign in with Jevbox</span>
+            <span>Sign in with Onro Knowledgebase</span>
           </div>
           <span className="mcp-preview-save">Save server</span>
         </div>
@@ -460,7 +462,7 @@ export function McpConnectionGuide({
             {guide.id === "claude" && (
               <p className="mcp-guide-note">
                 {local
-                  ? "Your Jevbox address is local. Use the Claude Code command below, or deploy Jevbox to a public HTTPS address for Claude desktop and web."
+                  ? "Your Onro Knowledgebase address is local. Use the Claude Code command below, or deploy Onro Knowledgebase to a public HTTPS address for Claude desktop and web."
                   : "Claude desktop and web need a publicly reachable HTTPS address."}{" "}
                 For Team and Enterprise, an owner first adds it in{" "}
                 <strong>
@@ -572,14 +574,14 @@ export function McpConnectionGuide({
       <details className="mcp-guide-help">
         <summary>Connection help</summary>
         <p>
-          Jevbox supports MCP 2026-07-28 and the standard 2025-11-25 handshake.
-          If your client reports an unsupported protocol, update it or use a
-          compatible client.
+          Onro Knowledgebase supports MCP 2026-07-28 and the standard 2025-11-25
+          handshake. If your client reports an unsupported protocol, update it
+          or use a compatible client.
         </p>
         <p>
           For sign-in errors, authenticate again or check that your API key is
-          active. Search also requires your organization’s decision model connection
-          and indexed documents. Manage keys in{" "}
+          active. Search also requires your organization’s decision model
+          connection and indexed documents. Manage keys in{" "}
           <RouteLink href={paths.settings("api-keys")}>API keys</RouteLink> or
           disconnect OAuth apps below.
         </p>
@@ -592,7 +594,8 @@ export function McpConnectionGuide({
           <DialogHeader>
             <DialogTitle>{screenshot?.caption}</DialogTitle>
             <DialogDescription>
-              Reference screenshot. Enter your own Jevbox URL when connecting.
+              Reference screenshot. Enter your own Onro Knowledgebase URL when
+              connecting.
             </DialogDescription>
           </DialogHeader>
           <DialogPanel>

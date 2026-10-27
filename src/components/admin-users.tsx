@@ -58,7 +58,10 @@ export function AdminUsersView() {
     <div className="settings-page">
       <header className="settings-heading">
         <h1>All users</h1>
-        <p>Everyone who has signed up for Jevbox, across all organizations.</p>
+        <p>
+          Everyone who has signed up for Onro Knowledgebase, across all
+          organizations.
+        </p>
       </header>
       <section className="settings-section" aria-label="User directory">
         <form

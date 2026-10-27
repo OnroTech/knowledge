@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === "production") {
   runtime.app.use(vite.middlewares);
 }
 const server = runtime.app.listen(port, process.env.HOST ?? "127.0.0.1", () =>
-  console.log(`Jevbox is running at ${origin}`),
+  console.log(`Onro Knowledgebase is running at ${origin}`),
 );
 let stopping = false;
 for (const signal of ["SIGTERM", "SIGINT"])

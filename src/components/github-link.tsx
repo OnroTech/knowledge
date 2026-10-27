@@ -29,7 +29,7 @@ export function GitHubLink() {
       : stars >= 1000
         ? `${(stars / 1000).toFixed(1)}k`
         : stars.toLocaleString("en-US");
-  const label = `View Jevbox on GitHub${stars === null ? "" : ` (${stars.toLocaleString("en-US")} stars)`}`;
+  const label = `View source code on GitHub${stars === null ? "" : ` (${stars.toLocaleString("en-US")} stars)`}`;
   return (
     <Button
       size="sm"

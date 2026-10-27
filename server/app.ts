@@ -275,7 +275,7 @@ export async function createApp(options: {
         authorization_servers: [`${options.origin}/api/auth`],
         scopes_supported: [...apiScopes],
         bearer_methods_supported: ["header"],
-        resource_name: "Jevbox",
+        resource_name: "Onro Knowledgebase",
       }),
     );
   app.all("/api/auth/{*path}", authHandler);
@@ -415,6 +415,7 @@ export async function createApp(options: {
       chatModels: availableChatModels(s),
       decisionProvider: s.decisionProvider ?? "typesafe",
       cloudflareAccountId: s.cloudflareAccountId ?? "",
+      jevGateway: s.jevGateway ?? "typesafe",
       cloudflareModel: s.cloudflareModel ?? "clef",
       configured: {
         extendKey: Boolean(s.extendKey),
@@ -496,6 +497,7 @@ export async function createApp(options: {
       const common = {
         extendKey: z.string().max(1000).optional(),
         jevKey: z.string().max(1000).optional(),
+        jevGateway: z.enum(["typesafe", "openrouter"]).optional(),
         openaiKey: z.string().max(10000).optional(),
         decisionProvider: z.enum(decisionProviders).optional(),
         cloudflareKey: z.string().max(1000).optional(),
@@ -606,6 +608,7 @@ export async function createApp(options: {
       const s = await getSettings(store, a.orgId);
       if (input.extendKey !== undefined) s.extendKey = input.extendKey.trim();
       if (input.jevKey !== undefined) s.jevKey = input.jevKey.trim();
+      if (input.jevGateway !== undefined) s.jevGateway = input.jevGateway;
       if (input.decisionProvider !== undefined)
         s.decisionProvider = input.decisionProvider;
       if (input.cloudflareKey !== undefined)

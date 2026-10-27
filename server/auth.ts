@@ -35,6 +35,12 @@ export function createAuthentication(
     sendAuthEmail?: SendAuthEmail;
   },
 ) {
+  const requireEmailVerification =
+    process.env.AUTH_REQUIRE_EMAIL_VERIFICATION !== "false";
+  if (!requireEmailVerification && process.env.ALLOW_SIGNUP === "true")
+    throw new Error(
+      "Public signup must be disabled when email verification is bypassed",
+    );
   const ownerUserId = process.env.OWNER_USER_ID?.trim();
   const isOwner = (userId: string) =>
     Boolean(ownerUserId && userId === ownerUserId);
@@ -86,7 +92,7 @@ export function createAuthentication(
       });
   }
   const auth = betterAuth({
-    appName: "Jevbox",
+    appName: "Onro Knowledgebase",
     baseURL: options.origin,
     basePath: "/api/auth",
     secret,
@@ -116,7 +122,7 @@ export function createAuthentication(
         disableOrganizationDeletion: true,
         creatorRole: "admin",
         roles: { admin: adminAc, member: memberAc },
-        requireEmailVerificationOnInvitation: true,
+        requireEmailVerificationOnInvitation: requireEmailVerification,
         invitationExpiresIn: 7 * 86400,
         cancelPendingInvitationsOnReInvite: true,
         schema: {
@@ -331,7 +337,7 @@ export function createAuthentication(
       enabled: true,
       minPasswordLength: 12,
       maxPasswordLength: 128,
-      requireEmailVerification: true,
+      requireEmailVerification,
       autoSignIn: false,
       customSyntheticUser: ({ coreFields, additionalFields, id }) => ({
         ...coreFields,
@@ -340,6 +346,8 @@ export function createAuthentication(
         banReason: null,
         banExpires: null,
         ...additionalFields,
+        // Match signup policy; the client must still authenticate the password.
+        emailVerified: !requireEmailVerification,
         id,
       }),
       revokeSessionsOnPasswordReset: true,
@@ -350,7 +358,7 @@ export function createAuthentication(
       sendResetPassword: async ({ user, url }) =>
         sendEmail({ to: user.email, kind: "password-reset", url }),
       onExistingUserSignUp: async ({ user }, request) => {
-        if (user.emailVerified) return;
+        if (!requireEmailVerification || user.emailVerified) return;
         const body = await request?.json();
         await auth.api.sendVerificationEmail({
           body: { email: user.email, callbackURL: body?.callbackURL },
@@ -358,12 +366,14 @@ export function createAuthentication(
       },
     },
     emailVerification: {
-      sendOnSignUp: true,
-      sendOnSignIn: true,
+      sendOnSignUp: requireEmailVerification,
+      sendOnSignIn: requireEmailVerification,
       autoSignInAfterVerification: true,
       expiresIn: 3600,
-      sendVerificationEmail: async ({ user, url }) =>
-        sendEmail({ to: user.email, kind: "verification", url }),
+      sendVerificationEmail: async ({ user, url }) => {
+        if (requireEmailVerification)
+          await sendEmail({ to: user.email, kind: "verification", url });
+      },
     },
     advanced: {
       database: { generateId: () => randomUUID() },
@@ -728,6 +738,14 @@ export function createAuthentication(
     databaseHooks: {
       user: {
         create: {
+          before: async (user, ctx) => ({
+            data: {
+              ...user,
+              ...(!requireEmailVerification && ctx?.path === "/sign-up/email"
+                ? { emailVerified: true }
+                : {}),
+            },
+          }),
           after: async (user, ctx) => {
             if (ctx?.path !== "/sign-up/email" || ctx.body?.invite) return;
             await auth.api.createOrganization({

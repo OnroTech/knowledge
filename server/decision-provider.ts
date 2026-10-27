@@ -7,6 +7,7 @@ import { openaiDecisionModel } from "../shared/decision-model";
 export type DecisionSettings = {
   decisionProvider?: DecisionProvider;
   jevKey?: string;
+  jevGateway?: "typesafe" | "openrouter";
   cloudflareAccountId?: string;
   cloudflareKey?: string;
   cloudflareModel?: CloudflareModel;
@@ -14,7 +15,7 @@ export type DecisionSettings = {
 };
 
 export type DecisionConnection =
-  | { provider: "typesafe"; key: string }
+  | { provider: "typesafe"; key: string; gateway?: "typesafe" | "openrouter" }
   | { provider: "openai"; key: string; model: typeof openaiDecisionModel }
   | {
       provider: "cloudflare";
@@ -44,5 +45,13 @@ export function getDecisionConnection(
     };
   }
   const key = settings.jevKey?.trim();
-  return key ? { provider: "typesafe", key } : undefined;
+  return key
+    ? {
+        provider: "typesafe",
+        key,
+        ...(settings.jevGateway === "openrouter"
+          ? { gateway: "openrouter" as const }
+          : {}),
+      }
+    : undefined;
 }

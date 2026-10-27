@@ -218,7 +218,7 @@ export default function App() {
     query: searchQuery,
   } = navigation.route;
   useEffect(() => {
-    document.title = me
+    const pageTitle = me
       ? documentId
         ? "Document"
         : page === "search"
@@ -229,6 +229,7 @@ export default function App() {
               ? "Settings"
               : "Library"
       : "Sign in";
+    document.title = `${pageTitle} — Onro Knowledgebase`;
   }, [me, page, documentId]);
   const { dark, toggle } = useTheme();
   const [previews, setPreviews] = useState<

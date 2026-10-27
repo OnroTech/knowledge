@@ -43,9 +43,7 @@ export function Brand({ small = false }: { small?: boolean }) {
       <span className="brand-mark">
         <JevboxIcon size={small ? 19 : 23} />
       </span>
-      <span>
-        jevbox<span className="brand-dot">.</span>
-      </span>
+      <span className="brand-name">Onro Knowledgebase</span>
     </div>
   );
 }

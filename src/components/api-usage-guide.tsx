@@ -14,7 +14,8 @@ export function ApiUsageGuide({
   onCopy: (value: string) => void;
 }) {
   const url = `${origin}/api/v1`;
-  const authorization = '-H "Authorization: Bearer $JEVBOX_API_KEY"';
+  const authorization =
+    '-H "Authorization: Bearer $ONRO_KNOWLEDGEBASE_API_KEY"';
   const searchBody = JSON.stringify(
     { organizationId: "<ORGANIZATION_ID>", query: "<YOUR_QUESTION>", limit: 5 },
     null,
@@ -54,7 +55,7 @@ export function ApiUsageGuide({
         </p>
         <RequestCode
           label="Set your API key"
-          text="export JEVBOX_API_KEY='<YOUR_API_KEY>'"
+          text="export ONRO_KNOWLEDGEBASE_API_KEY='<YOUR_API_KEY>'"
           onCopy={onCopy}
         />
       </article>

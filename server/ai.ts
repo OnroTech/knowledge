@@ -4,6 +4,7 @@ import {
   streamText,
   tool,
   isStepCount,
+  Output,
   type LanguageModel,
   type ModelMessage,
 } from "ai";
@@ -43,10 +44,11 @@ import {
   documentInspectionSchema,
   type DocumentInspection,
 } from "./document-inspection";
+import type { SearchFilters } from "../shared/search-filters";
 import {
-  searchFiltersSchema,
-  type SearchFilters,
-} from "../shared/search-filters";
+  searchToolFiltersSchema,
+  normalizeSearchToolFilters,
+} from "./search-tool-filters";
 import {
   documentVisualSchema,
   type DocumentVisualInput,
@@ -56,6 +58,7 @@ export type AnswerExecution = {
   signal: AbortSignal;
   attachedDocuments?: { id: string; name: string }[];
   maxOutputTokens?: number;
+  outputSchema?: z.ZodType;
   onText?: (text: string) => Promise<void>;
   beforeStep?: () => Promise<void>;
   searchDocuments?: (
@@ -299,6 +302,9 @@ export async function generateAnswer(
         ...options,
         name: "custom",
         baseURL: validateProviderURL(config.baseURL),
+        ...(new URL(config.baseURL).hostname === "openrouter.ai"
+          ? { supportsStructuredOutputs: true }
+          : {}),
       }).chatModel(modelId);
       break;
     }
@@ -326,6 +332,9 @@ export async function generateAnswer(
       messages,
       maxOutputTokens: execution?.maxOutputTokens ?? 2000,
       maxRetries: 1,
+      ...(execution?.outputSchema
+        ? { output: Output.object({ schema: execution.outputSchema }) }
+        : {}),
       ...(provider === "openai"
         ? {
             providerOptions: {
@@ -342,7 +351,9 @@ export async function generateAnswer(
                 inputSchema: z
                   .object({
                     query: z.string().trim().min(1).max(4000),
-                    filters: searchFiltersSchema.optional(),
+                    filters: searchToolFiltersSchema.nullish().describe(
+                      "Use null when the user has not explicitly requested restrictions. Unspecified fields must be null, not placeholder dates, sharing settings, or folder IDs.",
+                    ),
                   })
                   .strict(),
                 execute: async ({ query, filters }, { abortSignal }) => {
@@ -350,7 +361,7 @@ export async function generateAnswer(
                     return await execution.searchDocuments!(
                       query,
                       abortSignal,
-                      filters,
+                      normalizeSearchToolFilters(filters),
                     );
                   } catch (error) {
                     toolFailure = error;
@@ -447,11 +458,11 @@ export async function generateAnswer(
         }
       }
       request.abortSignal.throwIfAborted();
-      return text;
+      return execution.outputSchema ? JSON.stringify(await result.output) : text;
     }
     const result = await generateText(request);
     if (toolFailure) throw toolFailure;
-    return result.text;
+    return execution?.outputSchema ? JSON.stringify(result.output) : result.text;
   } catch (error) {
     if (error instanceof HttpError) throw error;
     execution?.signal.throwIfAborted();

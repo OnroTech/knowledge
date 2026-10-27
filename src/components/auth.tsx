@@ -34,11 +34,7 @@ export function Auth({ onLogin }: { onLogin: () => void }) {
     | "sent"
     | "invitation";
   const [mode, setMode] = useState<Mode>(
-    location.pathname === "/reset-password"
-      ? "reset"
-      : invite && !query.has("verified")
-        ? "register"
-        : "signin",
+    location.pathname === "/reset-password" ? "reset" : "signin",
   );
   const register = mode === "register";
   const [address, setAddress] = useState("");
@@ -194,8 +190,9 @@ export function Auth({ onLogin }: { onLogin: () => void }) {
               <>
                 {invite && (
                   <div className="notice">
-                    You’ve been invited to an organization. Use the email
-                    address on your invitation.
+                    You’ve been invited to an organization. Sign in with the
+                    email address on your invitation, or create an account if
+                    this is your first visit.
                   </div>
                 )}
                 <Form
@@ -284,6 +281,24 @@ export function Auth({ onLogin }: { onLogin: () => void }) {
                             : { invite }),
                         });
                         if (result.error) throw new Error(result.error.message);
+                        if (result.data?.user.emailVerified) {
+                          const signedIn = await authClient.signIn.email({
+                            email,
+                            password: String(data.get("password")),
+                            callbackURL: verificationCallback,
+                          });
+                          if (signedIn.error?.status === 401) {
+                            setMode("signin");
+                            setNotice(
+                              "Sign in with your existing password, or use Forgot password to reset it.",
+                            );
+                            return;
+                          }
+                          if (signedIn.error)
+                            throw new Error(signedIn.error.message);
+                          await completeLogin();
+                          return;
+                        }
                         setMode("verification");
                         setNotice("");
                         return;
@@ -463,7 +478,7 @@ export function Auth({ onLogin }: { onLogin: () => void }) {
                   {register
                     ? "Already have an account?"
                     : mode === "signin"
-                      ? "New to Jevbox?"
+                      ? "New to Onro Knowledgebase?"
                       : "Remember your password?"}{" "}
                   <button
                     type="button"
@@ -474,7 +489,11 @@ export function Auth({ onLogin }: { onLogin: () => void }) {
                       action.setError("");
                     }}
                   >
-                    {mode === "signin" ? "Create an organization" : "Sign in"}
+                    {mode === "signin"
+                      ? invite
+                        ? "Create an account"
+                        : "Create an organization"
+                      : "Sign in"}
                   </button>
                 </p>
                 {mode === "signin" && (
