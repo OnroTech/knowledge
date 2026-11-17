@@ -83,3 +83,39 @@ Use PostgreSQL-backed SpiceDB for the full matrix rather than a long-lived
 in-memory test datastore; accumulated historical tuples can exhaust its memory
 and invalidate results. The browser suites may run separately on a capable
 host, but must remain part of the acceptance matrix.
+
+## Connected-host follow-up (2026-11-17)
+
+The earlier cloud access limitations above were resolved through the authorized
+Mac SSH/GitHub session. PR #1 targets `main`. The existing deployment is the
+`jevbox` Compose project at `/home/dashadmin/jevbox` on the user-identified host.
+Its tracked source (excluding host-specific Compose configuration) matches the
+inspected `main`; existing uncommitted deployment settings must be preserved.
+A custom-format PostgreSQL backup was taken and its archive listing verified
+before any deployment. The existing image is retained for rollback.
+
+Worker-only credentials are read from the restricted `.env.knowledge-sync` file
+via `compose.knowledge-steward.yaml`. Both web and worker explicitly force sync
+off during acceptance. Do not put the GitHub token in web environment variables,
+commit it, or copy broader GitHub CLI credentials to the server.
+
+Test fixture corrections preserve assertions: administrative timestamps use
+explicit UTC instants and the fake model returns schema-valid filing decisions.
+The pinned-browser suites passed all 20 tests on the connected Mac. Full-suite
+services must use disk-backed PostgreSQL: a tmpfs data directory counts against
+the database container memory limit and invalidated earlier resource-constrained
+runs. The streaming test passed after correcting that infrastructure.
+
+The intended repositories are `OnroTech/ControlRoom` and
+`OnroTech/OnroCustomerApps`. Restricted-token metadata checks currently return
+404 for both, so real GitHub ingestion is not verified. A simulated source can
+validate the deployed ingestion/index lifecycle without claiming real-source
+access. Keep scheduling off until the token, reviewed non-PII documentation
+scope, and real-source test ingestion have all been verified.
+
+Final regression matrix: 290/290 core tests passed on isolated disk-backed
+PostgreSQL 17 and PostgreSQL-backed SpiceDB 1.48.0, with zero failures,
+cancellations or skips (356.53 seconds). Together with the 20/20 pinned-browser
+tests, all 310 cases passed. TypeScript and Vite production build passed. GitHub
+Actions had no run records at verification time; these are recorded execution
+environment results, not a claim that hosted CI ran.
