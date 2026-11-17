@@ -11,6 +11,16 @@ export async function enqueueIndex(
   delay = 0,
 ) {
   return store.transaction(async () => {
+    if (
+      await store.one(
+        "SELECT 1 FROM knowledge_source_manifest WHERE resource_id=? AND state<>'active'",
+        resourceId,
+      )
+    )
+      throw new HttpError(
+        409,
+        "Managed source is retired or awaiting synchronization",
+      );
     const id = await store.jobs.send(
       queues.index,
       { resourceId, ...data },
@@ -56,7 +66,12 @@ export function createIndexHandler(
         "SELECT * FROM resources WHERE id=?",
         document.id,
       );
+      const withheld = await store.one(
+        "SELECT 1 FROM knowledge_source_manifest WHERE resource_id=? AND state<>'active'",
+        document.id,
+      );
       if (
+        withheld ||
         !member ||
         current?.index_job_id !== job.id ||
         current.status !== "processing" ||

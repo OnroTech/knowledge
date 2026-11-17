@@ -68,7 +68,20 @@ export function createFileDownloads(store: Store, limits = downloadLimits) {
       else active.delete(subject);
     };
   }
+  async function currentRevision(resourceId: string) {
+    const row = await store.one<{ state: string; revision: string }>(
+      "SELECT state,revision FROM knowledge_source_manifest WHERE resource_id=?",
+      resourceId,
+    );
+    if (row && row.state !== "active")
+      throw new HttpError(
+        409,
+        "This source is retired or awaiting synchronization; consult its GitHub history",
+      );
+    return row?.revision;
+  }
   async function stage(resourceId: string, signal: AbortSignal) {
+    await currentRevision(resourceId);
     const source = await store.files.download(resourceId);
     if (source.size > diskBudget - bytes)
       throw new HttpError(
@@ -153,6 +166,15 @@ export function createFileDownloads(store: Store, limits = downloadLimits) {
         ? `user:${userId}`
         : `ip:${ipKeyGenerator(req.ip ?? "127.0.0.1")}`;
       await run(req, res, subject, async (signal) => {
+        const revision = await currentRevision(resource.id);
+        const revalidate = async () => {
+          await check();
+          if ((await currentRevision(resource.id)) !== revision)
+            throw new HttpError(
+              409,
+              "Source revision changed; reload the document",
+            );
+        };
         const source = await store.files.download(resource.id);
         const headers = {
           "Content-Type": resource.mime,
@@ -175,13 +197,13 @@ export function createFileDownloads(store: Store, limits = downloadLimits) {
         const selected =
           Array.isArray(range) && range.type === "bytes" ? range[0] : undefined;
         if (req.method === "HEAD") {
-          await check();
+          await revalidate();
           res.set(headers).set("Content-Length", String(source.size)).end();
           return;
         }
         const staged = await stage(resource.id, signal);
         try {
-          await check();
+          await revalidate();
           signal.throwIfAborted();
           res.set(headers);
           if (selected)

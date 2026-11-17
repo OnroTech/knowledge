@@ -459,7 +459,12 @@ export function DocumentView({
     ? `/api/shared/${sharedToken}/resources/${doc.id}/content`
     : `/api/documents/${doc.id}/content`;
   const ext = doc.name.split(".").pop()?.toLowerCase();
-  const indexIssue = doc.status === "failed" || doc.status === "awaiting_key";
+  const sourceUnavailable =
+    doc.status === "retired" || doc.status === "source_pending";
+  const indexIssue =
+    sourceUnavailable ||
+    doc.status === "failed" ||
+    doc.status === "awaiting_key";
   const indexing = doc.status === "queued" || doc.status === "processing";
   const blocks = documentBlocks(doc.parsed);
   const selectedBlocks = focusBlockIds?.length
@@ -506,13 +511,18 @@ export function DocumentView({
     <div className={`index-warning ${doc.status}`} role="alert">
       <TriangleAlert className="size-4.5 shrink-0 micro-alert-icon" />
       <div>
-        <strong>Waiting for the document index</strong>
+        <strong>
+          {sourceUnavailable
+            ? "Source unavailable"
+            : "Waiting for the document index"}
+        </strong>
         <p>
           {doc.status === "awaiting_key"
             ? "Connect Extend to index this document."
             : doc.error || "Indexing failed. Try again."}
         </p>
         {doc.canWrite &&
+          !sourceUnavailable &&
           (doc.status === "awaiting_key" ? (
             <RouteLink href="/settings/connections">Open connections</RouteLink>
           ) : (

@@ -61,9 +61,41 @@ const fakeFetch: typeof fetch = async (input, init) => {
   if (url.includes("typesafe")) {
     if (isScoreRequest(body))
       return scoreContext ? scoreContext(body) : scoreResponse(body, 3);
+    // These permission tests preserve the uploaded folder. Filing behavior has
+    // its own suite; generic equal-probability choices can move test resources.
+    if (body.questions?.placement) {
+      const criteria = body.questions.placement.criteria;
+      const selected = Object.hasOwn(criteria, "here") ? "here" : "none";
+      return Response.json({
+        answers: {
+          placement: {
+            type: "choice",
+            probabilities: Object.fromEntries(
+              Object.keys(criteria).map((id) => [id, Number(id === selected)]),
+            ),
+          },
+        },
+      });
+    }
     return choiceResponse(body);
   }
   if (url.includes("openai")) {
+    // Automatic filing requests a schema-valid branch even when the subsequent
+    // placement decision rejects it. Prose chat output would cause job retries.
+    if (body.text?.format?.type === "json_schema") {
+      assert.ok(body.text.format.schema.properties.folders);
+      return textResponse(
+        body,
+        JSON.stringify({
+          folders: [
+            {
+              name: "Test documents",
+              description: "Synthetic permission-test documents.",
+            },
+          ],
+        }),
+      );
+    }
     const toolResponse = searchToolResponse(body);
     if (toolResponse) return toolResponse;
     await revokeDuringAnswer?.();
@@ -1925,7 +1957,13 @@ test("startup rebuilds committed permission snapshots after SpiceDB relationship
   ))!.authz_version;
   await runtime.store.authorization.removeSnapshot(before);
   assert.equal(
-    await runtime.store.authorization.check(before, "resource", document, "read", actor.userId),
+    await runtime.store.authorization.check(
+      before,
+      "resource",
+      document,
+      "read",
+      actor.userId,
+    ),
     false,
   );
   const restarted = await createStore(directory, database.url);

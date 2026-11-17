@@ -13,6 +13,7 @@ export const queues = {
   search: "external-search",
   email: "auth-email",
   cleanup: "permission-cleanup",
+  knowledgeSync: "knowledge-sync",
   failed: "jobs-failed",
 } as const;
 export type QueueName = (typeof queues)[keyof typeof queues];
@@ -136,6 +137,12 @@ export async function createJobs(options: {
         ...defaults,
         policy: "exclusive",
         expireInSeconds: 120,
+      },
+      [queues.knowledgeSync]: {
+        ...defaults,
+        policy: "singleton",
+        expireInSeconds: 420,
+        deadLetter: queues.failed,
       },
     };
     for (const [name, configuration] of Object.entries(configurations)) {

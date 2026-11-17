@@ -1,4 +1,5 @@
 import { createOrganization } from "./organization";
+import { runKnowledgeSync } from "./knowledge-sync";
 import { createIndexHandler } from "./indexing-jobs";
 import { createThumbnailJobs, enqueueMissingThumbnails } from "./thumbnails";
 import { createProviders } from "./providers";
@@ -174,6 +175,13 @@ export function createWorkers(
     );
   }
   const handlers: Record<QueueName, (job: BackgroundJob) => Promise<void>> = {
+    [queues.knowledgeSync]: async (job) => {
+      await runKnowledgeSync(store, job.signal, {
+        guard: (fn) => store.jobs.guard(job, fn),
+        fetcher: options.fetcher,
+      });
+      await store.jobs.complete(job, async () => {});
+    },
     [queues.thumbnail]: (job) => thumbnails.process(job),
     [queues.index]: createIndexHandler(store, providers),
     [queues.filing]: organization.process,
@@ -264,6 +272,7 @@ export function createWorkers(
     [queues.search]: 3,
     [queues.email]: 2,
     [queues.cleanup]: 1,
+    [queues.knowledgeSync]: 1,
     [queues.failed]: 1,
   };
   const started = new Set<QueueName>();
@@ -271,6 +280,16 @@ export function createWorkers(
     handle,
     async start(names: QueueName[] = Object.values(queues)) {
       if (names.length) await store.files.ready();
+      if (names.includes(queues.knowledgeSync)) {
+        if (process.env.ONRO_KNOWLEDGE_SYNC_ENABLED === "true")
+          await store.jobs.boss.schedule(
+            queues.knowledgeSync,
+            "*/15 * * * *",
+            {},
+            { tz: "UTC" },
+          );
+        else await store.jobs.boss.unschedule(queues.knowledgeSync);
+      }
       if (names.includes(queues.thumbnail))
         await enqueueMissingThumbnails(store);
       for (const name of names) {
