@@ -10,6 +10,7 @@ function source(bytes = 1024 * 1024) {
   let reads = 0;
   const body = Buffer.alloc(bytes, 65);
   const store = {
+    one: async () => undefined,
     files: {
       download: async () => ({
         size: bytes,
@@ -115,6 +116,53 @@ test("ranges stream selected bytes, HEAD skips bodies, and revoked access return
     const blocked = await fetch(url);
     assert.equal(blocked.status, 403);
     assert.deepEqual(await blocked.json(), { error: "Forbidden" });
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
+
+test("retired or pending managed documents cannot serve obsolete bytes", async () => {
+  const fixture = source();
+  fixture.store.one = async () => ({ withheld: true }) as never;
+  await assert.rejects(
+    createFileDownloads(fixture.store).stage(
+      "document",
+      new AbortController().signal,
+    ),
+    /retired or awaiting synchronization/,
+  );
+  assert.equal(fixture.reads(), 0);
+});
+
+test("a revision changed during staging is rejected before streaming", async () => {
+  const fixture = source(32);
+  let revision = "old";
+  fixture.store.one = async () => ({ state: "active", revision }) as never;
+  const downloads = createFileDownloads(fixture.store);
+  const app = express();
+  app.get("/content", async (req, res) =>
+    downloads.send(
+      req,
+      res,
+      { id: "document", name: "content.txt", mime: "text/plain" } as Resource,
+      async () => {
+        revision = "new";
+      },
+      "user",
+    ),
+  );
+  app.use(((error, _req, res, _next) =>
+    res
+      .status(error.status ?? 500)
+      .json({ error: error.message })) as ErrorRequestHandler);
+  const server = app.listen(0, "127.0.0.1");
+  await new Promise<void>((resolve) => server.once("listening", resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
+  try {
+    const response = await fetch(`http://127.0.0.1:${address.port}/content`);
+    assert.equal(response.status, 409);
+    assert.match((await response.json()).error, /revision changed/);
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
