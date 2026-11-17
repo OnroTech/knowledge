@@ -55,9 +55,30 @@ before(async () => {
   }
   const hash = await hashPassword(password);
   for (const [id, email, name, verified, role, created] of [
-    [ownerId, "owner@local.test", "Owner", true, "user", "2026-01-01"],
-    [adminId, "admin@local.test", "Administrator", true, "admin", "2026-01-02"],
-    [pendingId, "pending@local.test", "Pending", false, "user", "2026-01-03"],
+    [
+      ownerId,
+      "owner@local.test",
+      "Owner",
+      true,
+      "user",
+      "2026-01-01T00:00:00.000Z",
+    ],
+    [
+      adminId,
+      "admin@local.test",
+      "Administrator",
+      true,
+      "admin",
+      "2026-01-02T00:00:00.000Z",
+    ],
+    [
+      pendingId,
+      "pending@local.test",
+      "Pending",
+      false,
+      "user",
+      "2026-01-03T00:00:00.000Z",
+    ],
   ] as const) {
     await runtime.store.run(
       "INSERT INTO users(id,email,name,email_verified,role,created_at) VALUES(?,?,?,?,?,?)",
