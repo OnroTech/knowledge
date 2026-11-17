@@ -72,3 +72,14 @@ Citation scope: current search results retain Jevbox section/passage targets and
 The supplied ZIP application script was inspected and applied to feature branch `feat/onro-knowledge-steward` based on main `0cdb0b128463e6f12cb79d47ad93a94030b9a36d`, then adapted after independent review. Local TypeScript validation passed. The focused suite passed 24 tests using PostgreSQL 17.11 and SpiceDB 1.48.0 (temporary in-memory authorization, isolated PostgreSQL test schemas), including real pg-boss knowledge job completion/index processing, search section citation targets, duplicate events, cross-org isolation, failed updates, retirement/restoration, incomplete scans, stale findings, lost claims, retry fairness and download revision races. GitHub and model responses are synthetic; this is not production acceptance.
 
 The broader Jevbox test suite was also exercised. Failures reproduced on unmodified main include a timezone-sensitive admin assertion, absent pinned Playwright browser, and a background-job timeout in a security test. The browser installer returned an invalid/truncated archive. Do not represent the entire suite or deployment acceptance as green until those environment/baseline failures are resolved in hosted CI or the existing deployment environment.
+
+## Shared test database isolation
+
+The default test command runs files serially. Each file still exercises its explicit
+worker/concurrency assertions, but Better Auth schema discovery scans the shared
+PostgreSQL catalog: another file dropping its disposable schema can otherwise
+cause a transient `schema ... does not exist` error during authentication.
+Use PostgreSQL-backed SpiceDB for the full matrix rather than a long-lived
+in-memory test datastore; accumulated historical tuples can exhaust its memory
+and invalidate results. The browser suites may run separately on a capable
+host, but must remain part of the acceptance matrix.
